@@ -1,6 +1,6 @@
 const { authMiddleware } = require("../middlewares/Middleware");
 const Account = require("../db/db")
-const express = require(express);
+const express = require("express");
 const router = express.Router();
 
 router.get("/balance", authMiddleware, async (req, res) => {
