@@ -1,10 +1,8 @@
 const express = require("express");
-require("dotenv").config({
-    path: "../.env"
-})
+require("dotenv").config();
 const mongoose = require("mongoose");
 const router = express.Router()
-const z = require("zod")
+const { z } = require("zod")
 const User = require("../db/db")
 const jwt = require("jsonwebtoken");
 const { authMiddleware } = require("../middlewares/Middleware");
@@ -14,7 +12,7 @@ const signupBody = z.object({
     username: z.string().email(),
     password: z.string(),
     firstName: z.string(),
-    lastName: z.string
+    lastName: z.string()
 }) 
 
 router.post("/signup", async (req, res) => {
@@ -81,10 +79,10 @@ router.post("/signin", async (req, res) => {
 })
 
 const updateBody = z.object({
-    username: string().email().optional(),
-    password: string().optional(),
-    firstName: string().optional(),
-    lastName: string().optional()
+    username: z.string().email().optional(),
+    password: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional()
 })
 
 router.put("/update", authMiddleware, async (req, res) => {
