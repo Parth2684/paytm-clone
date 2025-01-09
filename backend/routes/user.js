@@ -3,9 +3,9 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const router = express.Router()
 const { z } = require("zod")
-const User = require("../db/db")
+const {User, Account} = require("../db/db")
 const jwt = require("jsonwebtoken");
-const { authMiddleware } = require("../middlewares/Middleware");
+const { authMiddleware } = require("../middlewares/middleware");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const signupBody = z.object({
@@ -34,8 +34,12 @@ router.post("/signup", async (req, res) => {
     }else{
         const newUser = await User.create(body);
         const token = jwt.sign({
-            userID: newUser._id
+            userId: newUser._id
         }, JWT_SECRET)
+        await Account.create({
+            userId: newUser._id,
+            balance: 1 + Math.random() * 10000
+        })
         res.json({
             msg: "User created successfully",
             token: token
@@ -68,6 +72,7 @@ router.post("/signin", async (req, res) => {
             msg: "Invalid Email or Password"
         })
     }else{
+        
         const token = jwt.sign({
             userID: user._id
         }, JWT_SECRET)
