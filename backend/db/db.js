@@ -2,7 +2,7 @@ require("dotenv").config()
 
 const mongoose = require("mongoose")
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect("mongodb://localhost:27017/paytm-clone");
 console.log("Connected to MongoDB");
 
 const userSchema = mongoose.Schema({

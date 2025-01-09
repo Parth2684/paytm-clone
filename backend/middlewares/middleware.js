@@ -1,26 +1,26 @@
-require("dotenv").config({
-    path: "../.env"
-})
-const jwt = require("jsonwebtoken")
-const JWT_SECRET = process.env.JWT_SECRET;
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config");
 
-const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(403).json({});
+function authMiddleware (req, res, next) {
+    const token = req.headers.authorization
+
+    if(!token){
+        res.status(403).json({
+            msg: "token is missing"
+        })
     }
 
-    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET)
 
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-
-        req.userId = decoded.userId;
-
-        next();
-    } catch (err) {
-        return res.status(403).json({});
+    if(decoded){
+        req.userId = decoded.userId
+        next()
+    }
+    else{
+        res.status(403).json({
+            msg: "You are not signed in"
+        })
     }
 };
 

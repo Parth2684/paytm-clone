@@ -6,7 +6,8 @@ const { z } = require("zod")
 const {User, Account} = require("../db/db")
 const jwt = require("jsonwebtoken");
 const { authMiddleware } = require("../middlewares/middleware");
-const JWT_SECRET = process.env.JWT_SECRET;
+const { JWT_SECRET } = require("../config");
+
 
 const signupBody = z.object({
     username: z.string().email(),
@@ -74,12 +75,36 @@ router.post("/signin", async (req, res) => {
     }else{
         
         const token = jwt.sign({
-            userID: user._id
+            userId: user._id
         }, JWT_SECRET)
         res.json({
             token
         })
         return;
+    }
+})
+
+router.get("/info", authMiddleware, async (req, res) => {
+    try {
+        const userId  = req.userId
+
+        const user = await User.findById(userId)
+
+        if(!user){
+            return res.status(400).json({
+                msg: "user not found"
+            })
+        }
+
+        res.status(200).json(
+            user
+        )
+        return
+    } catch (error) {
+        console.log("error", error)
+        res.status(400).json({
+            msg: "error while getting info"
+        })
     }
 })
 
@@ -91,18 +116,15 @@ const updateBody = z.object({
 })
 
 router.put("/update", authMiddleware, async (req, res) => {
-    const { success } = updateBody.safeParse(req.body);
-    if(!success){
-        res.status(403).json({
-            msg: "Invalid inputs"
-        })
-    }
+    
+    console.log("username", req.body)
 
-    await User.updateOne(req.body, {
-        id: req.userId
+    const user = await User.findByIdAndUpdate(req.userId, {
+        username: req.body.username
     })
     res.json({
-        msg: "Details Updated successfully"
+        msg: "Details Updated successfully",
+        user
     })
 })
 
